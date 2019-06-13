@@ -41,6 +41,9 @@
 * SQL Server Express LocalDB 2016
 * xUnit for .Net Core 2.2
 #### Assumptions
+* Security
+  * SQL Server LocalDb using integrated security
+  * Opt out of name create/edit option so authentication not needed
 * Mobile first
 * UI changes over performance gradients
   * Response times
@@ -56,6 +59,9 @@
     * Pruning result
     * Most recent first
     * Language based **-- Out of scope**
+
+## Design
+
 
 ## Resources
 ### Articles
