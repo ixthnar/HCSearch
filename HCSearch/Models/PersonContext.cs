@@ -13,13 +13,6 @@ namespace HCSearch.Models
         {
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<PersonName>()
-                .HasIndex(p => new { p.NameFirst, p.NameLast });
-        }
-
-        public DbSet<PersonName> PersonNames { get; set; }
-        public DbSet<PersonInfo> PersonInfos { get; set; }
+        public DbSet<Person> Persons { get; set; }
     }
 }

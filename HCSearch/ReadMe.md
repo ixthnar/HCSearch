@@ -83,6 +83,8 @@ slow response techniques
 ## Resources
 ### Articles
 * [Baymard Institute: 8 Design Patterns for Auto-complete Suggestions](https://baymard.com/blog/autocomplete-design)
+* [File to hexadecimal converter](https://tomeko.net/online_tools/file_to_hex.php?lang=en)
+* [small (github project of smallest possible files)](https://github.com/mathiasbynens/small/blob/master/jpeg.jpg)
 * [How to throttle AND debounce an auto-complete input in React](https://www.peterbe.com/plog/how-to-throttle-and-debounce-an-autocomplete-input-in-react)
 * [Measuring sequences of keystrokes with jsPsych](https://link.springer.com/article/10.3758/s13428-016-0776-3)
 * [NN/g: Powers of 10: Time Scales in User Experience](https://www.nngroup.com/articles/powers-of-10-time-scales-in-ux/)
