@@ -35,7 +35,9 @@ namespace HCSearch.Controllers
                 id = string.Empty;
 
             // This protects from injection exploits for JavaScript, SQL, and SQL Like
-            string idValue = Regex.Replace(WebUtility.UrlDecode(id), "[^a-zA-Z0-9.' ]+", "", RegexOptions.Compiled).Trim();
+            string idValue = Regex.Replace(WebUtility.UrlDecode(id), "[^a-zA-Z0-9.' ]+", "", RegexOptions.Compiled)
+                .Replace("'", "''") // Escape apostrophes
+                .Trim();
 
             // Further parameter cleaning
             int pageValue = Math.Max(1, page.GetValueOrDefault(1));
@@ -45,9 +47,12 @@ namespace HCSearch.Controllers
             string likeClause = string.Empty;
             foreach (var item in idValue.Split(' '))
             {
-                if (likeClause.Length > 0)
-                    likeClause += " AND ";
-                likeClause += string.Format("((NameFirst LIKE '%{0}%') OR (NameLast LIKE '%{0}%'))", item);
+                if (!string.IsNullOrEmpty(item))
+                {
+                    if (likeClause.Length > 0)
+                        likeClause += " AND ";
+                    likeClause += string.Format("((NameFirst LIKE '%{0}%') OR (NameLast LIKE '%{0}%'))", item);
+                }
             }
 
             // The above protects from incoming text with injection exploits for JavaScript, SQL, and SQL Like

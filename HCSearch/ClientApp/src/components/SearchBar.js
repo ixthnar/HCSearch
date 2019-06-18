@@ -22,21 +22,32 @@ class SearchBar extends Component {
     handleChange(currentValue) {
         this.setState({ value: currentValue });
         console.log("currentValue: " + currentValue);
-        this.getSearchResult();
-        this.showSearchResult(this.props.searchResult);
+        ReactDOM.render(' ', document.getElementById('ShowBlock')); // TODO this better
+        if (this.props.isLoading) {
+            ReactDOM.render('X', document.getElementById('ShowBlock')); // TODO this better
+            // TODO search for this when loading is complete ... use an event queue
+        } else {
+            new Promise(() => {
+                this.getSearchResult(currentValue);
+                this.showSearchResult(this.props.searchResult);
+            })
+            .finally(() => {
+                ReactDOM.render('*', document.getElementById('ShowBlock')); // TODO this better
+            });
+        }
     }
 
     handleSubmit = () => {
-        this.getSearchResult();
+        this.getSearchResult(this.state.value);
         this.showSearchResult(this.props.searchResult);
     }
 
-    getSearchResult = () => {
-        const searchPattern = this.state.value;
-        this.setState({searchPattern: searchPattern});
+    getSearchResult = (searchPattern) => {
+        this.setState({ searchPattern: searchPattern });
         console.log(this.state.searchResults);
         const startDataPage = 1;
         const pageSize = 20;
+        ReactDOM.render(searchPattern, document.getElementById('ShowSearchPattern')); // TODO this better
         this.props.requestSearchData(searchPattern, startDataPage, pageSize);
         this.setState({ searchResult: this.props.searchResult });
         console.log(this.props);
@@ -54,8 +65,10 @@ class SearchBar extends Component {
                     className="form-control"
                     placeholder="Search names"
                     onChange={(e) => this.handleChange(e.target.value)}
-                        value={this.value} />
+                    value={this.value} />
                 <button onClick={(e) => this.handleSubmit()}> Yo </button>
+                <span id="ShowBlock" style={{ color: 'red', fontWeight: 900, width: 20 }}></span>
+                <span id="ShowSearchPattern"></span>
                 <div id="ResultDataHere"></div>
             </div>
         );
@@ -67,8 +80,8 @@ function renderSearchBarResultTable(searchResult) {
         <div>
             {searchResult.map(searchResultItem =>
                 <div key={searchResultItem.id}>
-                    <div style={{width:50,display:'inline-block',color:'#AAA'}}>{searchResultItem.id}</div>
-                    <div style={{ display: 'inline-block'}}>{searchResultItem.nameFirst + ' ' + searchResultItem.nameLast}</div>
+                    <div style={{ width: 50, display: 'inline-block', color: '#AAA' }}>{searchResultItem.id}</div>
+                    <div style={{ display: 'inline-block' }}>{searchResultItem.nameFirst + ' ' + searchResultItem.nameLast}</div>
                 </div>
             )}
         </div>
