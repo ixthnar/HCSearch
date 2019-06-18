@@ -60,7 +60,7 @@ namespace HCSearch.Controllers
             var result = personContext.Persons
                 .FromSql("SELECT Id, NameFirst, NameLast FROM Persons" + (likeClause.Length > 0 ? " WHERE " + likeClause : ""))
                 .Select(s => new PersonSearch() { Id = s.Id, NameFirst = s.NameFirst, NameLast = s.NameLast })
-                .Skip(pageValue * pageSizeValue).Take(pageSizeValue).ToList();
+                .Skip((pageValue - 1) * pageSizeValue).Take(pageSizeValue).ToList();
             return Ok(result);
         }
     }

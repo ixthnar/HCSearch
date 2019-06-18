@@ -1,0 +1,59 @@
+﻿.SearchBarBox {
+    display: inline-block;
+    width: 80% !important;
+    vertical-align: middle;
+}
+
+.SearchBarButton {
+    display: inline-block;
+    background-image: url(/seacrchButtonWhite.png);
+    background-repeat: no-repeat;
+    background-size: 32px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    vertical-align: middle;
+    margin-left:3px;
+}
+
+.ShowBlockStyle {
+    color: #fbb;
+    font-weight: bolder;
+    width: 20px;
+    font-size: 6pt;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 3px;
+}
+
+.ShowSearchPatternStyle {
+    color: #bbb;
+    font-size: 6pt;
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 3px;
+}
+
+.DisplaySearchId {
+    color: #bbb;
+    width: 40px;
+    display: none; /*inline-block*/
+    font-size: 6pt;
+}
+
+.DisplaySearchName {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.ShowSearchResultData {
+    display:inline-block;
+    border:solid #ddd 0px;
+}
+
+.ShowDetailData {
+    display: inline-block;
+    border: solid #ddd 0px;
+    margin:24px 0 0 48px;
+    vertical-align:top;
+}

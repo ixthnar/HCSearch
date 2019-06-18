@@ -88,8 +88,81 @@ namespace HCSearchUnitTest
             response.EnsureSuccessStatusCode();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var data = response.Content.ReadAsStringAsync().Result;
-            PersonSearch search = JsonConvert.DeserializeObject<PersonSearch>(data);
-            Assert.Equal<PersonSearch>(searchTest, search);
+            List<PersonSearch> search = JsonConvert.DeserializeObject<List<PersonSearch>>(data);
+            int resultCount = search.Count;
+            Assert.Equal<int>(1, resultCount);
+            Assert.Equal<PersonSearch>(searchTest, search[0], new PersonSearchComparer());
+        }
+
+        [Fact]
+        public void SearchPattern()
+        {
+            const string searchText = "chri br";
+            const int knownCount = 7;
+            /*
+             * Id	    NameFirst	NameLast
+             * 4917	    Christeen	Brasil
+             * 5427	    Christene	Sensenbrenner
+             * 7423	    Christopher	Brasuell
+             * 10792	    Christin	    Disbro
+             * 12469	    Christian	Broas
+             * 41877	    Christi	    Galbreath
+             * 47381	    Christine	Philbrick
+             */
+            var request = new HttpRequestMessage(HttpMethod.Get, "/api/search/" + WebUtility.UrlEncode(searchText));
+            Task<HttpResponseMessage> task = _client.SendAsync(request);
+            task.Wait();
+            var response = task.Result;
+            response.EnsureSuccessStatusCode();
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var data = response.Content.ReadAsStringAsync().Result;
+            List<PersonSearch> search = JsonConvert.DeserializeObject<List<PersonSearch>>(data);
+            Assert.Equal<int>(knownCount, search.Count);
+        }
+    }
+
+    public class PersonSearchComparer : IEqualityComparer<PersonSearch>
+    {
+        public bool Equals(PersonSearch p1, PersonSearch p2)
+        {
+            bool isSame = true;
+            string mismatchedProps = string.Empty;
+            foreach (var prop in typeof(PersonSearch).GetProperties())
+            {
+                if (prop.PropertyType.IsArray)
+                {
+                    var a1 = (byte[])prop.GetValue(p1);
+                    var a2 = (byte[])prop.GetValue(p2);
+                    if (a1.Length != a2.Length)
+                    {
+                        isSame = false;
+                        mismatchedProps += prop.Name + "\n";
+                    }
+                    else
+                    {
+                        for (int ix = 0; ix < a1.Length; ++ix)
+                        {
+                            if (!a1[ix].Equals(a2[ix]))
+                            {
+                                isSame = false;
+                                mismatchedProps += string.Format("{0}[{1}]\n", prop.Name, ix);
+                                break;
+                            }
+                        }
+                    }
+                }
+                else if (!prop.GetValue(p1).Equals(prop.GetValue(p2)))
+                {
+                    isSame = false;
+                    mismatchedProps += prop.Name + "\n";
+                }
+            }
+            return isSame;
+        }
+
+        public int GetHashCode(PersonSearch obj)
+        {
+            return obj.Id.GetHashCode();
         }
     }
 }
