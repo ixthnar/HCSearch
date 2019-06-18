@@ -32,6 +32,10 @@ namespace HCSearch.Controllers
             var result = personContext.Persons.Skip(pageValue * pageSizeValue).Take(pageSizeValue).ToList();
             if (result.Count < 1)
                 return NoContent();
+            for (int ix = 0; ix < result.Count; ++ix)
+            {
+                //result[ix].PictureBase64 = Convert.ToBase64String(result[ix].Picture, 0, result[ix].Picture.Length);
+            }
             return Ok(result);
         }
 
@@ -42,6 +46,7 @@ namespace HCSearch.Controllers
             var result = personContext.Persons.Where(s => s.Id == id).FirstOrDefault();
             if (result == null)
                 return NotFound();
+            //result.PictureBase64 = Convert.ToBase64String(result.Picture, 0, result.Picture.Length);
             return Ok(result);
         }
     }

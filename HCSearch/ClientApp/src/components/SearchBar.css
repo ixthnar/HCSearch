@@ -49,6 +49,7 @@
 .ShowSearchResultData {
     display:inline-block;
     border:solid #ddd 0px;
+    width:250px;
 }
 
 .ShowDetailData {
@@ -56,4 +57,9 @@
     border: solid #ddd 0px;
     margin:24px 0 0 48px;
     vertical-align:top;
+}
+
+.ShowDiscreetly {
+    color: #bbb;
+    font-size: 6pt;
 }

@@ -40,5 +40,8 @@ namespace HCSearch.Models
 
         [Column(TypeName = "varbinary(Max)")]
         public byte[] Picture { get; set; }         // Stored as VARBINARY(MAX)
+
+        [NotMapped]
+        public string PictureBase64 => Convert.ToBase64String(this.Picture, 0, this.Picture.Length);
     }
 }
