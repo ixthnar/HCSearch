@@ -14,11 +14,11 @@ namespace HCSearch.Controllers
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        [HttpGet("[action]")]
-        public IEnumerable<WeatherForecast> WeatherForecasts(int startDateIndex)
+        [HttpGet]
+        public IEnumerable<SearchDataClass> Get(int startDateIndex)
         {
             var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            return Enumerable.Range(1, 5).Select(index => new SearchDataClass
             {
                 DateFormatted = DateTime.Now.AddDays(index + startDateIndex).ToString("d"),
                 TemperatureC = rng.Next(-20, 55),
@@ -26,7 +26,7 @@ namespace HCSearch.Controllers
             });
         }
 
-        public class WeatherForecast
+        public class SearchDataClass
         {
             public string DateFormatted { get; set; }
             public int TemperatureC { get; set; }

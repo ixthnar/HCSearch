@@ -3,16 +3,12 @@ import { connect } from 'react-redux';
 
 class SearchList extends Component {
     render() {
-        const { works } = this.props;
+        //const { works } = this.props;
 
         return (
             <table className="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                    </tr>
-                </thead>
-                <tbody> works.map((work) => <tr ><td></td></tr></tbody>
+                <thead><tr><th>Name</th></tr></thead>
+                <tbody><tr><td>${/* works.map((work) => */}</td></tr></tbody>
             </table>
         );
     }

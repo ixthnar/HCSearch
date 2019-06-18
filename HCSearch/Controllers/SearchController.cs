@@ -21,18 +21,21 @@ namespace HCSearch.Controllers
         {
             personContext = context;
         }
+        [HttpGet]
+        public IActionResult GetAll(int? page = 1, int? pageSize = 10)
+        {
+            return Get(string.Empty, page, pageSize);
+        }
 
         // GET api/<controller>/5
         [HttpGet("{id}")]
         public IActionResult Get(string id, int? page = 1, int? pageSize = 10)
         {
             if (string.IsNullOrWhiteSpace(id))
-                return NoContent();
+                id = string.Empty;
 
             // This protects from injection exploits for JavaScript, SQL, and SQL Like
             string idValue = Regex.Replace(WebUtility.UrlDecode(id), "[^a-zA-Z0-9.' ]+", "", RegexOptions.Compiled).Trim();
-            if (idValue.Length < 1)
-                return NoContent();
 
             // Further parameter cleaning
             int pageValue = Math.Max(1, page.GetValueOrDefault(1));
@@ -50,7 +53,7 @@ namespace HCSearch.Controllers
             // The above protects from incoming text with injection exploits for JavaScript, SQL, and SQL Like
 #pragma warning disable EF1000
             var result = personContext.Persons
-                .FromSql("SELECT Id, NameFirst, NameLast FROM Persons WHERE " + likeClause)
+                .FromSql("SELECT Id, NameFirst, NameLast FROM Persons" + (likeClause.Length > 0 ? " WHERE " + likeClause : ""))
                 .Select(s => new PersonSearch() { Id = s.Id, NameFirst = s.NameFirst, NameLast = s.NameLast })
                 .Skip(pageValue * pageSizeValue).Take(pageSizeValue).ToList();
             return Ok(result);

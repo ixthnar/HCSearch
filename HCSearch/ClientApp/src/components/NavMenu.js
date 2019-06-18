@@ -13,9 +13,7 @@ export default class NavMenu extends React.Component {
     };
   }
   toggle () {
-    this.setState({
-      isOpen: !this.state.isOpen
-    });
+    this.setState({isOpen: !this.state.isOpen});
   }
   render () {
     return (
