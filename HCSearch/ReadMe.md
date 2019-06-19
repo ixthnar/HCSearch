@@ -6,10 +6,25 @@
 ### Visual Studio Extensions
 * __Markdown Editor__ by Mads Kristensen is needed to properly view this file, ReadMe.md
 ### Prerequisites
-* SQL Server Express 2017 
-#### _For documentation only_
-* _PM>_ `Add-Migration HCSearch.Models.PersonContext`
+* Visual Studio 2017 or 2019, any edition is required to run and test this project
+  * Configure Tools > Options > NuGet Package Manager > General enabling both "Package Restore" options
+* SQL Server 2017 or higher Express, Developer, or a production version 
+  * Full Text Search must be installed, enabled, and running
+  * SSMS (SQL Server Management Studio) must be installed
+  * In SSMS assure that Security > Logins has a Windows Authentication login for the account that will be running HCSearch
 ### Installation
+* Clone solution from https://github.com/ixthnar/HCSearch.git
+* Given everyone full control of .\HC\HCSearch\Data\HCSearch.mdf and .\HC\HCSearch\Data\HCSearch_log.ldf
+* Using SSMS with server connected the account that will be running HCSearch
+  * Attach database to SQL Server instance, .\HC\HCSearch\Data\HCSearch.mdf
+  * Assure that the account can query the database using the statement
+    * `USE HCSearch; SELECT TOP 1 * FROM Persons WHERE NameFirst LIKE '%a%'`
+  * For database create info see the file, .\HC\HCSearch\Collateral\Database Create.sql
+
+## Summary
+HCSearch is a C#, .Net Core 2.2, React/Redux application that meets the stated requirements.  
+It accesses, and does not update, a 50,000 person database.  Being somewhat new to React/Redux 
+the UI is basic, front-end unit tests were deferred, and component/reducer usage is basic
 
 ## Requirements Analysis 
 ### Project Requirements
@@ -36,7 +51,8 @@ slow response techniques
 * Picture must be less the 1Mb supporting use of field storage (VARBINARY(MAX)) rather than FileStream
 * Picture name and type are not retained since modern browsers are driven by the picture content
 * Interests stored as JSON array stored as NVARCHAR(4000)
-* Use seed data
+* Use seed data of 50,000 people with random ages and a picture that is the smallest valid jpeg file.
+ See .\HC\HCSearch\Collateral\jpeg.jpg
 * Option to create new users is deferred thus eliminating some security questions
 #### Assumptions
 * No stated security requirement; therefore, the application will be considered public
@@ -55,11 +71,14 @@ slow response techniques
 * React unit testing not exploited due lack of knowledge/time
 * React Redux usage leans too heavily on older AJAX ideas rather 
 than exploiting the *right* use of components and reducers
+* Performance consideration managed as follows
+  * If typing gets ahead of predictions, the most recent change is queued to produce the next set
+  * Clicking the search icon (magnifying glass) forces a lookup of the current search bar content
+  * An in-code delay value can be used to simulate very slow responsiveness
 #### Assumptions
 * Security
   * SQL Server Express 2017 using integrated security
   * Opt out of name create/edit option so authentication not needed
-* Mobile first
 * UI changes over performance gradients
   * Response times
     * \<= 60 ms: auto-fill (in place) and suggestions
@@ -70,9 +89,9 @@ than exploiting the *right* use of components and reducers
     * 60 ms to 1000 ms: 2 or more driven by debouncing
     * \> 1000 ms: Not sure. Just wait for submit?
   * Prediction methods
-    * Caching
-    * Pruning result
-    * Most recent first
+    * Pruning result to first 20 matches
+    * Caching **-- Out of scope**
+    * Most recent first **-- Out of scope**
     * Language based **-- Out of scope**
 
 ## Design
@@ -97,18 +116,3 @@ than exploiting the *right* use of components and reducers
   * Right sized box with magnifying glass as submit button
   * Placeholder text "Search Names"
   * Auto-complete
-
-### Add-Ins
-* [Syncfusion: React AutoComplete TextBox Component](https://www.syncfusion.com/react-ui-components/react-autocomplete)
-
-### Notes
-#### Configure Full Text Search
-[CREATE FULLTEXT INDEX (Transact-SQL)](https://docs.microsoft.com/en-us/sql/t-sql/statements/create-fulltext-index-transact-sql?view=sql-server-2017)</br>
-
-1 Create Full Text Catalog HCFullTextCatalog<br>
-`CREATE FULLTEXT CATALOG [HCFullTextCatalog] WITH ACCENT_SENSITIVITY = OFF AS DEFAULT`<br>
-2 Create Index<br>
-`CREATE UNIQUE NONCLUSTERED INDEX [ui_names] ON [PersonNames]([Id])`<br>
-3 Create Full Test Index<br>
-`CREATE FULLTEXT INDEX ON PersonNames(NameFirst,NameLast) KEY INDEX ui_names WITH STOPLIST = SYSTEM;`<br>
-
