@@ -35,6 +35,9 @@ namespace HCSearch.Models
         [DataType(DataType.Date)]
         public DateTime DateOfBirth { get; set; }   // Yields age
 
+        [NotMapped]
+        public int Age => DateTime.Now.Year - DateOfBirth.Year;
+
         [MaxLength(4000)]
         public string Interests { get; set; }       // Stored as JSON array in NVARCHAR(4000)
 

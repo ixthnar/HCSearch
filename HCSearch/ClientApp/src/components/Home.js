@@ -3,10 +3,10 @@ import { connect } from 'react-redux';
 import SearchBar from './SearchBar';
 
 const Home = props => (
-  <div>
+    <div>
         <h1>HC Search</h1>
-        <SearchBar/>
-  </div>
+        <SearchBar />
+    </div>
 );
 
 export default connect()(Home);

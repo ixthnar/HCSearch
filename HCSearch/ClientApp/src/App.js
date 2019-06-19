@@ -4,7 +4,7 @@ import Layout from './components/Layout';
 import Home from './components/Home';
 
 export default () => (
-  <Layout>
-    <Route exact path='/' component={Home} />
-  </Layout>
+    <Layout>
+        <Route exact path='/' component={Home} />
+    </Layout>
 );

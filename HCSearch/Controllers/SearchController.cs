@@ -59,7 +59,7 @@ namespace HCSearch.Controllers
 #pragma warning disable EF1000
             var result = personContext.Persons
                 .FromSql("SELECT Id, NameFirst, NameLast FROM Persons" + (likeClause.Length > 0 ? " WHERE " + likeClause : ""))
-                .Select(s => new PersonSearch() { Id = s.Id, NameFirst = s.NameFirst, NameLast = s.NameLast })
+                .Select(s => new PersonSearchView() { id = s.Id, nameFirst = s.NameFirst, nameLast = s.NameLast })
                 .Skip((pageValue - 1) * pageSizeValue).Take(pageSizeValue).ToList();
             return Ok(result);
         }

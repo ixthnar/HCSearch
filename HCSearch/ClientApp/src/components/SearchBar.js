@@ -9,7 +9,7 @@ class SearchBar extends Component {
         this.state = {
             delay: 0,       // Set this to 2000 to simulate slow results
             value: '',
-            valueSave: '',
+            isChangeCatchUpNeeded: false,
             isLoading: false,
             searchPattern: '',
             searchResults: []
@@ -22,13 +22,11 @@ class SearchBar extends Component {
         this.renderDetailResultTable = this.renderDetailResultTable.bind(this);
     }
 
-    handleChange = (currentValue) =>  {
+    handleChange = (currentValue) => {
         this.setState({ value: currentValue });
-        console.log("currentValue: " + currentValue);
+        console.log("handleChange: currentValue=" + currentValue);
         if (this.state.isLoading) {
-            ReactDOM.render('X', document.getElementById('ShowBlock')); // TODO this better
-            this.setState({value: currentValue, valueSave: currentValue});
-            // TODO search for this when loading is complete ... use an event queue
+            this.setState({ isChangeCatchUpNeeded: true });
         } else {
             this.fetchSearchResult(currentValue);
         }
@@ -36,76 +34,71 @@ class SearchBar extends Component {
 
     handleSubmit = () => {
         const currentValue = this.state.value;
-        console.log("Submit currentValue: " + currentValue);
+        console.log("handleSubmit: currentValue=" + currentValue);
         if (this.state.isLoading) {
-            ReactDOM.render('X', document.getElementById('ShowBlock')); // TODO this better
-            this.setState({ valueSave: currentValue });
+            this.setState({ isChangeCatchUpNeeded: true });
         } else {
             this.fetchSearchResult(currentValue);
         }
     }
 
     handleItemClick = (itemId) => {
-        // TODO get and render full record
-        console.log("open: " + itemId);
+        console.log("Open detail: id=" + itemId);
         this.fetchDetailResult(itemId);
     }
 
+    // Fetch, render, and display search results. If typing was missed, catchup
     fetchSearchResult = (currentValue) => {
-        ReactDOM.render('D', document.getElementById('ShowBlock')); // TODO this better
-        ReactDOM.render(currentValue, document.getElementById('ShowSearchPattern')); // TODO this better
-        this.setState({ value: currentValue, valueSave: '', isLoading: true });
+        // Doing loading status in the view here, messes up the user experience
+        this.setState({ value: currentValue, isLoading: true });
         const searchPatternSafe = encodeURIComponent(currentValue.replace(/[^a-zA-Z0-9.' ]+/g, ""));
         fetch(`api/search/${searchPatternSafe}?page=1&pageSize=20`)
             .then(response => {
-                ReactDOM.render('.', document.getElementById('ShowBlock')); // TODO this better
                 return response.json();
             })
             .then(searchResult => {
-                ReactDOM.render(' ', document.getElementById('ShowBlock')); // TODO this better
                 this.setState({ searchResult: searchResult });
-                let show = this.renderSearchBarResultTable(searchResult);
-                ReactDOM.render(show, document.getElementById('ResultDataHere')); // TODO this better
+                ReactDOM.render(this.renderSearchBarResultTable(searchResult), document.getElementById('ResultDataHere'));
             })
             .then(() => {
+                // A delay to simulate slow response time
                 if (this.state.delay > 0) {
                     return new Promise(r => setTimeout(r, this.state.delay));
                 }
             })
             .then(() => {
-                // trigger again?
-                let newValue = this.state.valueSave;
-                this.setState({ valueSave: '', isLoading: false });
-                if (newValue.length > 0) {
-                    ReactDOM.render('*', document.getElementById('ShowBlock')); // TODO this better
+                // Catch up for missing changes
+                let isChangeCatchUpNeededCurrent = this.state.isChangeCatchUpNeeded;
+                this.setState({ isChangeCatchUpNeeded: false, isLoading: false });
+                if (isChangeCatchUpNeededCurrent) {
                     let element = document.getElementById('SearchBarControl');
                     setTimeout(e => this.handleChange(element.value), 1);
-                } else {
-                    ReactDOM.render(' ', document.getElementById('ShowBlock')); // TODO this better
                 }
             })
-            .catch(() => {
-                this.setState({ valueSave: '', isLoading: false });
-                ReactDOM.render('Z', document.getElementById('ShowBlock')); // TODO this better
+            .catch((err) => {
+                this.setState({ isChangeCatchUpNeeded: false, isLoading: false });
+                ReactDOM.render('Loading: search="' + currentValue + '", error=' + err, document.getElementById('ResultDataHere'));
             });
     }
 
+    // Fetch, render, and display details for the selected person
     fetchDetailResult = (id) => {
-        ReactDOM.render('Loading ' + id, document.getElementById('DetailDataHere')); // TODO this better
+        ReactDOM.render('Loading: id=' + id, document.getElementById('DetailDataHere'));
         fetch(`api/person/${id}?page=1&pageSize=20`)
             .then(response => {
                 return response.json();
             })
             .then(fetchResult => {
-                let show = this.renderDetailResultTable(fetchResult );
-                ReactDOM.render(show, document.getElementById('DetailDataHere')); // TODO this better
+                let show = this.renderDetailResultTable(fetchResult);
+                ReactDOM.render(show, document.getElementById('DetailDataHere'));
             })
-            .catch(() => {
+            .catch((err) => {
                 console.log('fetchDetailResult exception');
-                ReactDOM.render('Error retrieving data for ' + id, document.getElementById('DetailDataHere')); // TODO this better
+                ReactDOM.render('Loading: id=' + id + ', error=' + err, document.getElementById('DetailDataHere'));
             });
     }
 
+    // Render search 'predictions'.  *Should* a separate React/Redux component 
     renderSearchBarResultTable = (searchResult) => {
         return (
             <div>
@@ -119,13 +112,15 @@ class SearchBar extends Component {
         );
     }
 
+    // Render detail record.  *Should* a separate React/Redux component 
     renderDetailResultTable = (fetchDetailResult) => {
+        /* eslint no-useless-escape: 0 */
         return (
             <div>
-                <b>{fetchDetailResult.nameFirst + ' ' + fetchDetailResult.nameLast}</b><br/>
-                {fetchDetailResult.addressStreet + ', ' + fetchDetailResult.addressCity} <br/>
-                {fetchDetailResult.addressState + '  ' + fetchDetailResult.addressZip + ' ' + fetchDetailResult.addressCountry}<br/>
-                <em>Age:</em> {(new Date().getFullYear() - parseInt(fetchDetailResult.dateOfBirth.substring(0, 4), 10))}<br />
+                <b>{fetchDetailResult.nameFirst + ' ' + fetchDetailResult.nameLast}</b><br />
+                {fetchDetailResult.addressStreet + ', ' + fetchDetailResult.addressCity} <br />
+                {fetchDetailResult.addressState + '  ' + fetchDetailResult.addressZip + ' ' + fetchDetailResult.addressCountry}<br />
+                <em>Age:</em> {fetchDetailResult.age}<br />
                 <em>Interests:</em> {fetchDetailResult.interests.replace(/\',\'/g, ", ").replace(/[\'[\]]/g, "")}<br />
                 <img alt="the person" style={{ width: 64, height: 64, border: 'solid 1px #bbb' }} src={"data:image/jpg;base64," + fetchDetailResult.pictureBase64} />
                 <em>&nbsp;&nbsp;(minimal jpeg for test data)</em> <br />
@@ -134,6 +129,7 @@ class SearchBar extends Component {
         );
     }
 
+    // Main render.  The 'components' *should* be React/Redux component 
     render() {
         return (
             <div>
@@ -145,8 +141,6 @@ class SearchBar extends Component {
                         onChange={(e) => this.handleChange(e.target.value)}
                         value={this.value} />
                     <button className="SearchBarButton" onClick={(e) => this.handleSubmit()}></button>
-                    <div id="ShowBlock" className="ShowBlockStyle"></div>
-                    <div id="ShowSearchPattern" className="ShowSearchPatternStyle" ></div>
                 </div>
                 <table>
                     <tr>

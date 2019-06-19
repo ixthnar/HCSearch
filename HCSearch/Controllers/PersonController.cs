@@ -29,13 +29,25 @@ namespace HCSearch.Controllers
             int pageValue = Math.Max(1,page.GetValueOrDefault(1));
             int pageSizeValue = Math.Max(1, pageSize.GetValueOrDefault(10));
             // page is 1 based
-            var result = personContext.Persons.Skip(pageValue * pageSizeValue).Take(pageSizeValue).ToList();
+            var result = personContext.Persons.Skip(pageValue * pageSizeValue).Take(pageSizeValue)
+                .Select(s => new PersonDetailView()
+                {
+                    id = s.Id,
+                    nameFirst = s.NameFirst,
+                    nameLast = s.NameLast,
+                    addressStreet = s.AddressStreet,
+                    addressCity = s.AddressCity,
+                    addressState = s.AddressState,
+                    addressZip = s.AddressZip,
+                    addressCountry = s.AddressCountry,
+                    dateOfBirth = s.DateOfBirth,
+                    age = s.Age,
+                    interests = s.Interests,
+                    pictureBase64 = s.PictureBase64
+                })
+                .ToList();
             if (result.Count < 1)
                 return NoContent();
-            for (int ix = 0; ix < result.Count; ++ix)
-            {
-                //result[ix].PictureBase64 = Convert.ToBase64String(result[ix].Picture, 0, result[ix].Picture.Length);
-            }
             return Ok(result);
         }
 

@@ -20,7 +20,7 @@ namespace HCSearchUnitTest
     public class PersonControllerTest
     {
         private readonly HttpClient _client;
-        private string projectDir = @"..\HCSearch";
+        private readonly string projectDir = @"..\HCSearch";
 
         public PersonControllerTest()
         {
@@ -67,7 +67,7 @@ namespace HCSearchUnitTest
             response.EnsureSuccessStatusCode();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var data = response.Content.ReadAsStringAsync().Result;
-            List<Person> persons = JsonConvert.DeserializeObject<List<Person>>(data);
+            List<PersonDetailView> persons = JsonConvert.DeserializeObject<List<PersonDetailView>>(data);
             Assert.Equal(20, persons.Count);
         }
 
@@ -78,38 +78,39 @@ namespace HCSearchUnitTest
             byte[] picture = Enumerable.Range(0, pictureString.Length)
                      .Where(x => x % 2 == 0).Select(x => Convert.ToByte(pictureString.Substring(x, 2), 16))
                      .ToArray();
-            Person personTest = new Person() {
-                Id = 5,
-                NameFirst = "Malia",
-                NameLast = "Floerchinger",
-                AddressStreet = "968 W 5th St",
-                AddressCity = "New York",
-                AddressState = "NY",
-                AddressZip = "10013",
-                AddressCountry = "United States",
-                DateOfBirth = DateTime.ParseExact("1966-04-22", "yyyy-MM-dd", CultureInfo.InvariantCulture),
-                Interests = "['Strategic Games','Stamp Collecting','Bird Watching','Gardening','Puzzles and Chess']",
-                Picture = picture
+            PersonDetailView personTest = new PersonDetailView() {
+                id = 5,
+                nameFirst = "Malia",
+                nameLast = "Floerchinger",
+                addressStreet = "968 W 5th St",
+                addressCity = "New York",
+                addressState = "NY",
+                addressZip = "10013",
+                addressCountry = "United States",
+                dateOfBirth = DateTime.ParseExact("1966-04-22", "yyyy-MM-dd", CultureInfo.InvariantCulture),
+                age = DateTime.Now.Year - 1966,
+                interests = "['Strategic Games','Stamp Collecting','Bird Watching','Gardening','Puzzles and Chess']",
+                pictureBase64 = Convert.ToBase64String(picture, 0, picture.Length)
             };
-            var request = new HttpRequestMessage(HttpMethod.Get, "/api/person/" + personTest.Id);
+            var request = new HttpRequestMessage(HttpMethod.Get, "/api/person/" + personTest.id);
             Task<HttpResponseMessage> task = _client.SendAsync(request);
             task.Wait();
             var response = task.Result;
             response.EnsureSuccessStatusCode();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var data = response.Content.ReadAsStringAsync().Result;
-            Person person = JsonConvert.DeserializeObject<Person>(data);
-            Assert.Equal<Person>(personTest, person, new PersonComparer());
+            PersonDetailView person = JsonConvert.DeserializeObject<PersonDetailView>(data);
+            Assert.Equal<PersonDetailView>(personTest, person, new PersonComparer());
         }
     }
 
-    public class PersonComparer : IEqualityComparer<Person>
+    public class PersonComparer : IEqualityComparer<PersonDetailView>
     {
-        public bool Equals(Person p1, Person p2)
+        public bool Equals(PersonDetailView p1, PersonDetailView p2)
         {
             bool isSame = true;
             string mismatchedProps = string.Empty;
-            foreach (var prop in typeof(Person).GetProperties())
+            foreach (var prop in typeof(PersonDetailView).GetProperties())
             {
                 if (prop.PropertyType.IsArray)
                 {
@@ -142,9 +143,9 @@ namespace HCSearchUnitTest
             return isSame;
         }
 
-        public int GetHashCode(Person obj)
+        public int GetHashCode(PersonDetailView obj)
         {
-            return obj.Id.GetHashCode();
+            return obj.id.GetHashCode();
         }
     }
 }

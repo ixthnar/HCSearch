@@ -52,6 +52,9 @@ slow response techniques
 * Entity Framework Core (SQL Server) 2.2.4 
 * SQL Server Express 2017
 * xUnit for .Net Core 2.2
+* React unit testing not exploited due lack of knowledge/time
+* React Redux usage leans too heavily on older AJAX ideas rather 
+than exploiting the *right* use of components and reducers
 #### Assumptions
 * Security
   * SQL Server Express 2017 using integrated security

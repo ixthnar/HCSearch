@@ -20,7 +20,7 @@ namespace HCSearchUnitTest
     public class SearchControllerTest
     {
         private readonly HttpClient _client;
-        private string projectDir = @"..\HCSearch";
+        private readonly string projectDir = @"..\HCSearch";
 
         public SearchControllerTest()
         {
@@ -67,20 +67,20 @@ namespace HCSearchUnitTest
             response.EnsureSuccessStatusCode();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var data = response.Content.ReadAsStringAsync().Result;
-            List<PersonSearch> Searchs = JsonConvert.DeserializeObject<List<PersonSearch>>(data);
+            List<PersonSearchView> Searchs = JsonConvert.DeserializeObject<List<PersonSearchView>>(data);
             Assert.Equal(20, Searchs.Count);
         }
 
         [Fact]
         public void SearchKnown()
         {
-            PersonSearch searchTest = new PersonSearch()
+            PersonSearchView searchTest = new PersonSearchView()
             {
-                Id = 5,
-                NameFirst = "Malia",
-                NameLast = "Floerchinger"
+                id = 5,
+                nameFirst = "Malia",
+                nameLast = "Floerchinger"
             };
-            string searchText = WebUtility.UrlEncode(string.Format("{0} {1}", searchTest.NameFirst, searchTest.NameLast));
+            string searchText = WebUtility.UrlEncode(string.Format("{0} {1}", searchTest.nameFirst, searchTest.nameLast));
             var request = new HttpRequestMessage(HttpMethod.Get, "/api/search/" + WebUtility.UrlEncode(searchText));
             Task<HttpResponseMessage> task = _client.SendAsync(request);
             task.Wait();
@@ -88,10 +88,10 @@ namespace HCSearchUnitTest
             response.EnsureSuccessStatusCode();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var data = response.Content.ReadAsStringAsync().Result;
-            List<PersonSearch> search = JsonConvert.DeserializeObject<List<PersonSearch>>(data);
+            List<PersonSearchView> search = JsonConvert.DeserializeObject<List<PersonSearchView>>(data);
             int resultCount = search.Count;
             Assert.Equal<int>(1, resultCount);
-            Assert.Equal<PersonSearch>(searchTest, search[0], new PersonSearchComparer());
+            Assert.Equal<PersonSearchView>(searchTest, search[0], new PersonSearchComparer());
         }
 
         [Fact]
@@ -116,18 +116,18 @@ namespace HCSearchUnitTest
             response.EnsureSuccessStatusCode();
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var data = response.Content.ReadAsStringAsync().Result;
-            List<PersonSearch> search = JsonConvert.DeserializeObject<List<PersonSearch>>(data);
+            List<PersonSearchView> search = JsonConvert.DeserializeObject<List<PersonSearchView>>(data);
             Assert.Equal<int>(knownCount, search.Count);
         }
     }
 
-    public class PersonSearchComparer : IEqualityComparer<PersonSearch>
+    public class PersonSearchComparer : IEqualityComparer<PersonSearchView>
     {
-        public bool Equals(PersonSearch p1, PersonSearch p2)
+        public bool Equals(PersonSearchView p1, PersonSearchView p2)
         {
             bool isSame = true;
             string mismatchedProps = string.Empty;
-            foreach (var prop in typeof(PersonSearch).GetProperties())
+            foreach (var prop in typeof(PersonSearchView).GetProperties())
             {
                 if (prop.PropertyType.IsArray)
                 {
@@ -160,9 +160,9 @@ namespace HCSearchUnitTest
             return isSame;
         }
 
-        public int GetHashCode(PersonSearch obj)
+        public int GetHashCode(PersonSearchView obj)
         {
-            return obj.Id.GetHashCode();
+            return obj.id.GetHashCode();
         }
     }
 }
