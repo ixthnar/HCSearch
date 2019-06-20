@@ -20,6 +20,8 @@
   * Assure that the account can query the database using the statement
     * `USE HCSearch; SELECT TOP 1 * FROM Persons WHERE NameFirst LIKE '%a%'`
   * For database create info see the file, .\HC\HCSearch\Collateral\Database Create.sql
+* If the SQL Server is not a default installation on the machine running this application,
+ the HCPersonDB connection string in ./HC/HCSearch/appsettings.json must be updated.
 
 ## Summary
 HCSearch is a C#, .Net Core 2.2, React/Redux application that meets the stated requirements.  
